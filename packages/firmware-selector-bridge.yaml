@@ -1,0 +1,26 @@
+# Applies the setup portal firmware choice to the product firmware_selector.
+# Internal use; requires firmware_selector and sync_selected_firmware_source
+# in the product firmware.
+
+interval:
+  - interval: 2s
+    then:
+      - lambda: |-
+          if (!id(setup_portal).firmware_option_dirty())
+            return;
+
+          const std::string wanted = id(setup_portal).firmware_option();
+          if (wanted.empty()) {
+            id(setup_portal).mark_firmware_option_applied();
+            return;
+          }
+
+          if (id(firmware_selector).current_option() != wanted) {
+            auto call = id(firmware_selector).make_call();
+            call.set_option(wanted);
+            call.perform();
+          } else {
+            id(sync_selected_firmware_source).execute();
+          }
+
+          id(setup_portal).mark_firmware_option_applied();

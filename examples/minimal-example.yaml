@@ -1,0 +1,44 @@
+# Minimal example: SmartHomeShop setup portal on a plain ESP32 WiFi config.
+# Flash, connect to the "setup-portal-demo" AP and open http://192.168.4.1/.
+
+substitutions:
+  device_name: setup-portal-demo
+  friendly_name: "Setup Portal Demo"
+  setup_product_name: "Setup Portal Demo"
+  setup_product_variant: "Demo firmware"
+  setup_support_cloud: "true"
+  setup_support_home_assistant: "true"
+  setup_support_mqtt: "false"
+  setup_support_ethernet: "false"
+  # No firmware_selector in this demo, so keep the selector flow off and do
+  # not include packages/firmware-selector-bridge.yaml.
+  setup_support_firmware_selector: "false"
+  setup_default_cloud_enabled: "true"
+  setup_default_home_assistant_enabled: "true"
+  setup_default_mqtt_enabled: "false"
+  setup_firmware_options: ""
+  setup_default_firmware_option: ""
+
+packages:
+  setup_portal: github://smarthomeshop/setup-portal/packages/setup-portal.yaml@main
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+
+logger:
+
+api:
+
+ota:
+  - platform: esphome
+
+wifi:
+  ap:
+    ssid: ${device_name}
+    password: ${device_name}
+
+captive_portal:

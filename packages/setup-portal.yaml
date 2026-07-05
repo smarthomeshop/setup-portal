@@ -1,0 +1,38 @@
+# SmartHomeShop setup portal package. Internal use.
+# Override the setup_* substitutions from the product config.
+# Requires a WiFi firmware with captive_portal.
+
+substitutions:
+  setup_product_name: "SmartHomeShop device"
+  setup_product_variant: "ESPHome firmware"
+  setup_support_cloud: "true"
+  setup_support_home_assistant: "true"
+  setup_support_mqtt: "false"
+  setup_support_ethernet: "false"
+  setup_support_firmware_selector: "false"
+  setup_default_cloud_enabled: "true"
+  setup_default_home_assistant_enabled: "true"
+  setup_default_mqtt_enabled: "false"
+  setup_firmware_options: ""
+  setup_default_firmware_option: ""
+
+external_components:
+  - source: github://smarthomeshop/setup-portal@main
+    components: [ smarthomeshop_setup_portal ]
+
+web_server_base:
+
+smarthomeshop_setup_portal:
+  id: setup_portal
+  product_name: ${setup_product_name}
+  product_variant: ${setup_product_variant}
+  support_cloud: ${setup_support_cloud}
+  support_home_assistant: ${setup_support_home_assistant}
+  support_mqtt: ${setup_support_mqtt}
+  support_ethernet: ${setup_support_ethernet}
+  support_firmware_selector: ${setup_support_firmware_selector}
+  default_cloud_enabled: ${setup_default_cloud_enabled}
+  default_home_assistant_enabled: ${setup_default_home_assistant_enabled}
+  default_mqtt_enabled: ${setup_default_mqtt_enabled}
+  firmware_options: "${setup_firmware_options}"
+  default_firmware_option: "${setup_default_firmware_option}"
