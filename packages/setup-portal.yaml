@@ -8,6 +8,7 @@ substitutions:
   setup_support_cloud: "true"
   setup_support_home_assistant: "true"
   setup_support_mqtt: "false"
+  setup_support_homey: "false"
   setup_support_ethernet: "false"
   setup_support_firmware_selector: "false"
   setup_default_cloud_enabled: "true"
@@ -29,6 +30,7 @@ smarthomeshop_setup_portal:
   support_cloud: ${setup_support_cloud}
   support_home_assistant: ${setup_support_home_assistant}
   support_mqtt: ${setup_support_mqtt}
+  support_homey: ${setup_support_homey}
   support_ethernet: ${setup_support_ethernet}
   support_firmware_selector: ${setup_support_firmware_selector}
   default_cloud_enabled: ${setup_default_cloud_enabled}

@@ -19,6 +19,7 @@ class SmartHomeShopSetupPortal : public Component, public AsyncWebHandler {
   void set_support_cloud(bool support_cloud) { this->support_cloud_ = support_cloud; }
   void set_support_home_assistant(bool support_home_assistant) { this->support_home_assistant_ = support_home_assistant; }
   void set_support_mqtt(bool support_mqtt) { this->support_mqtt_ = support_mqtt; }
+  void set_support_homey(bool support_homey) { this->support_homey_ = support_homey; }
   void set_support_ethernet(bool support_ethernet) { this->support_ethernet_ = support_ethernet; }
   void set_support_firmware_selector(bool support_firmware_selector) { this->support_firmware_selector_ = support_firmware_selector; }
   void set_default_cloud_enabled(bool enabled) { this->default_cloud_enabled_ = enabled; }
@@ -43,7 +44,10 @@ class SmartHomeShopSetupPortal : public Component, public AsyncWebHandler {
   void mark_wifi_failed();
 
   bool cloud_enabled() const { return this->support_cloud_ && this->settings_.cloud_enabled != 0; }
-  bool home_assistant_enabled() const { return this->support_home_assistant_ && this->settings_.home_assistant_enabled != 0; }
+  // Home Assistant (native ESPHome API) and Homey (local network) are always
+  // available when supported by the product; they are not user-toggleable.
+  bool home_assistant_enabled() const { return this->support_home_assistant_; }
+  bool homey_enabled() const { return this->support_homey_; }
   bool mqtt_enabled() const { return this->support_mqtt_ && this->settings_.mqtt_enabled != 0; }
   std::string firmware_option() const { return this->settings_.firmware_option; }
   // True only after the user saved a firmware choice in the portal that has not
@@ -109,6 +113,7 @@ class SmartHomeShopSetupPortal : public Component, public AsyncWebHandler {
   bool support_cloud_{true};
   bool support_home_assistant_{true};
   bool support_mqtt_{false};
+  bool support_homey_{false};
   bool support_ethernet_{false};
   bool support_firmware_selector_{false};
   bool default_cloud_enabled_{true};

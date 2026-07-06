@@ -13,6 +13,7 @@ CONF_PRODUCT_VARIANT = "product_variant"
 CONF_SUPPORT_CLOUD = "support_cloud"
 CONF_SUPPORT_HOME_ASSISTANT = "support_home_assistant"
 CONF_SUPPORT_MQTT = "support_mqtt"
+CONF_SUPPORT_HOMEY = "support_homey"
 CONF_SUPPORT_ETHERNET = "support_ethernet"
 CONF_SUPPORT_FIRMWARE_SELECTOR = "support_firmware_selector"
 CONF_DEFAULT_CLOUD_ENABLED = "default_cloud_enabled"
@@ -29,6 +30,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_SUPPORT_CLOUD, default=True): cv.boolean,
         cv.Optional(CONF_SUPPORT_HOME_ASSISTANT, default=True): cv.boolean,
         cv.Optional(CONF_SUPPORT_MQTT, default=True): cv.boolean,
+        cv.Optional(CONF_SUPPORT_HOMEY, default=False): cv.boolean,
         cv.Optional(CONF_SUPPORT_ETHERNET, default=False): cv.boolean,
         cv.Optional(CONF_SUPPORT_FIRMWARE_SELECTOR, default=False): cv.boolean,
         cv.Optional(CONF_DEFAULT_CLOUD_ENABLED, default=True): cv.boolean,
@@ -48,6 +50,7 @@ async def to_code(config):
     cg.add(var.set_support_cloud(config[CONF_SUPPORT_CLOUD]))
     cg.add(var.set_support_home_assistant(config[CONF_SUPPORT_HOME_ASSISTANT]))
     cg.add(var.set_support_mqtt(config[CONF_SUPPORT_MQTT]))
+    cg.add(var.set_support_homey(config[CONF_SUPPORT_HOMEY]))
     cg.add(var.set_support_ethernet(config[CONF_SUPPORT_ETHERNET]))
     cg.add(var.set_support_firmware_selector(config[CONF_SUPPORT_FIRMWARE_SELECTOR]))
     cg.add(var.set_default_cloud_enabled(config[CONF_DEFAULT_CLOUD_ENABLED]))
