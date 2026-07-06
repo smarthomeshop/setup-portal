@@ -51,7 +51,12 @@ void SmartHomeShopSetupPortal::loop() {
   if (this->wifi_apply_active_)
     this->process_wifi_apply_(now);
 
-  if (this->portal_should_handle_root_() && (this->last_scan_request_ms_ == 0 || now - this->last_scan_request_ms_ > SCAN_REFRESH_MS)) {
+  // Only refresh the network list while idle in the portal. Never scan while a
+  // connection attempt is in progress: scanning and connecting share the radio,
+  // so periodic scans repeatedly drop the STA connection and it never comes up.
+  const bool connecting = this->pending_wifi_ || this->wifi_apply_active_;
+  if (!connecting && this->portal_should_handle_root_() &&
+      (this->last_scan_request_ms_ == 0 || now - this->last_scan_request_ms_ > SCAN_REFRESH_MS)) {
     this->last_scan_request_ms_ = now == 0 ? 1 : now;
     wifi::global_wifi_component->set_keep_scan_results(true);
     wifi::global_wifi_component->start_scanning();
