@@ -124,6 +124,7 @@ class SmartHomeShopSetupPortal : public Component, public AsyncWebHandler {
 
   bool pending_wifi_{false};
   bool wifi_apply_active_{false};
+  bool wifi_provisioning_started_{false};
   bool wifi_last_error_{false};
   bool previous_sta_valid_{false};
   uint32_t wifi_apply_started_ms_{0};

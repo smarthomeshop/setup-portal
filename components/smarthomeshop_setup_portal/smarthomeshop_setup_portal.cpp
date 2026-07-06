@@ -54,7 +54,7 @@ void SmartHomeShopSetupPortal::loop() {
   // Only refresh the network list while idle in the portal. Never scan while a
   // connection attempt is in progress: scanning and connecting share the radio,
   // so periodic scans repeatedly drop the STA connection and it never comes up.
-  const bool connecting = this->pending_wifi_ || this->wifi_apply_active_;
+  const bool connecting = this->pending_wifi_ || this->wifi_apply_active_ || this->wifi_provisioning_started_;
   if (!connecting && this->portal_should_handle_root_() &&
       (this->last_scan_request_ms_ == 0 || now - this->last_scan_request_ms_ > SCAN_REFRESH_MS)) {
     this->last_scan_request_ms_ = now == 0 ? 1 : now;
@@ -137,44 +137,36 @@ void SmartHomeShopSetupPortal::begin_wifi_apply() {
     return;
   }
 
-  this->previous_sta_ = wifi->get_sta();
-  const std::string previous_ssid = this->wifi_ap_ssid_(this->previous_sta_);
-  this->previous_sta_valid_ = !previous_ssid.empty() && previous_ssid != this->pending_wifi_ssid_;
+  // Hand the credentials to ESPHome's native Wi-Fi provisioning, the same path
+  // the stock captive_portal uses. It manages the AP teardown, the shared
+  // AP/STA channel and the connection retries. Driving set_sta/start_connecting
+  // by hand fought the Wi-Fi state machine (repeated disable/enable mid-connect)
+  // and the STA never came up.
+  wifi->save_wifi_sta(this->pending_wifi_ssid_, this->pending_wifi_password_);
 
-  wifi::WiFiAP sta{};
-  sta.set_ssid(this->pending_wifi_ssid_);
-  sta.set_password(this->pending_wifi_password_);
-  wifi->set_sta(sta);
-  if (wifi->is_disabled())
-    wifi->enable();
-  wifi->start_connecting(sta);
-
+  this->wifi_provisioning_started_ = true;
   this->wifi_apply_active_ = true;
   this->wifi_last_error_ = false;
   this->wifi_apply_started_ms_ = millis() == 0 ? 1 : millis();
-  this->last_notice_ = "Testing your Wi-Fi. Your details are only saved once the connection succeeds.";
+  this->last_notice_ = "Connecting to your Wi-Fi network.";
 }
 
 void SmartHomeShopSetupPortal::mark_wifi_connected() {
-  if (wifi::global_wifi_component != nullptr && !this->pending_wifi_ssid_.empty())
-    wifi::global_wifi_component->save_wifi_sta(this->pending_wifi_ssid_, this->pending_wifi_password_);
-
   this->pending_wifi_ = false;
   this->wifi_apply_active_ = false;
   this->wifi_last_error_ = false;
   this->previous_sta_valid_ = false;
   this->wifi_apply_started_ms_ = 0;
-  this->last_notice_ = "Wi-Fi saved and connected.";
+  this->last_notice_ = "Wi-Fi connected.";
 }
 
 void SmartHomeShopSetupPortal::mark_wifi_failed() {
-  this->restore_previous_wifi_();
   this->pending_wifi_ = false;
   this->wifi_apply_active_ = false;
   this->wifi_last_error_ = true;
   this->previous_sta_valid_ = false;
   this->wifi_apply_started_ms_ = 0;
-  this->last_notice_ = "Couldn't connect to Wi-Fi, so nothing was saved. Check the network name and password, then try again.";
+  this->last_notice_ = "Couldn't connect to Wi-Fi. Check the network name and password, then try again.";
 }
 
 void SmartHomeShopSetupPortal::process_wifi_apply_(uint32_t now) {
