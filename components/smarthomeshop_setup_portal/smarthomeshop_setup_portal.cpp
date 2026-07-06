@@ -457,25 +457,25 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
   html += (visible_integrations <= 1 ? "one" : (visible_integrations == 3 ? "" : "two"));
   html += R"SHHTML(">)SHHTML";
 
-  if (this->support_cloud_) {
-    html += R"SHHTML(<label class="checkcard )SHHTML";
-    html += (this->settings_.cloud_enabled != 0 ? "on" : "");
-    html += R"SHHTML("><input type="checkbox" name="cloud_enabled" id="cloud_enabled")SHHTML";
-    html += this->render_checked_(this->settings_.cloud_enabled != 0);
-    html += R"SHHTML(><i class="tick">✓</i><span><strong>SmartHomeShop App</strong><span>Cloud sign-up, app dashboard and live sensor sync.</span></span></label>)SHHTML";
-  }
   if (this->support_home_assistant_) {
-    html += R"SHHTML(<div class="checkcard on locked"><i class="tick">✓</i><span><strong>Home Assistant <em>Always on</em></strong><span>The native ESPHome API stays available for local control.</span></span></div>)SHHTML";
+    html += R"SHHTML(<div class="checkcard on locked"><i class="tick">✓</i><span><strong>Home Assistant <em>Always on</em></strong><span>Shows up automatically in Home Assistant on your network &mdash; nothing to set up.</span></span></div>)SHHTML";
+  }
+  if (this->support_homey_) {
+    html += R"SHHTML(<div class="checkcard on locked"><i class="tick">✓</i><span><strong>Homey <em>Always on</em></strong><span>Add it in Homey with the SmartHomeShop app, locally over your network.</span></span></div>)SHHTML";
   }
   if (this->support_mqtt_) {
     html += R"SHHTML(<label class="checkcard )SHHTML";
     html += (this->settings_.mqtt_enabled != 0 ? "on" : "");
     html += R"SHHTML(" id="mqtt_card"><input type="checkbox" name="mqtt_enabled" id="mqtt_enabled")SHHTML";
     html += this->render_checked_(this->settings_.mqtt_enabled != 0);
-    html += R"SHHTML(><i class="tick">✓</i><span><strong>MQTT</strong><span>Optional, for your own broker or integration.</span></span></label>)SHHTML";
+    html += R"SHHTML(><i class="tick">✓</i><span><strong>MQTT</strong><span>Send live sensor readings to your own MQTT broker.</span></span></label>)SHHTML";
   }
-  if (this->support_homey_) {
-    html += R"SHHTML(<div class="checkcard on locked"><i class="tick">✓</i><span><strong>Homey <em>Always on</em></strong><span>Works with the SmartHomeShop app for Homey over your local network.</span></span></div>)SHHTML";
+  if (this->support_cloud_) {
+    html += R"SHHTML(<label class="checkcard )SHHTML";
+    html += (this->settings_.cloud_enabled != 0 ? "on" : "");
+    html += R"SHHTML("><input type="checkbox" name="cloud_enabled" id="cloud_enabled")SHHTML";
+    html += this->render_checked_(this->settings_.cloud_enabled != 0);
+    html += R"SHHTML(><i class="tick">✓</i><span><strong>SmartHomeShop App</strong><span>Connect to the SmartHomeShop cloud for the app and access from anywhere.</span></span></label>)SHHTML";
   }
   html += R"SHHTML(</div>)SHHTML";
 
