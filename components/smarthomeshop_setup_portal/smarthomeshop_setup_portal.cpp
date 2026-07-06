@@ -110,11 +110,10 @@ void SmartHomeShopSetupPortal::handleRequest(AsyncWebServerRequest *request) {
     return;
   }
 
-  if (this->is_known_captive_probe_(url)) {
-    this->redirect_(request, "/setup");
-    return;
-  }
-
+  // Captive-portal probe URLs and the fallback root both get the branded setup
+  // page served inline with a 200. Serving the page directly (rather than a 302
+  // redirect) is the most reliable cross-OS trigger for the automatic sign-in
+  // popup, matching how ESPHome's own captive_portal responds.
   this->send_page_(request, this->last_notice_);
 }
 
@@ -240,8 +239,14 @@ bool SmartHomeShopSetupPortal::portal_should_handle_root_() const {
 }
 
 bool SmartHomeShopSetupPortal::is_known_captive_probe_(const std::string &url) const {
-  return url == "/generate_204" || url == "/gen_204" || url == "/hotspot-detect.html" || url == "/library/test/success.html" ||
-         url == "/connecttest.txt" || url == "/ncsi.txt" || url == "/fwlink";
+  // OS connectivity-check endpoints. Answering these with our page (200) is
+  // what triggers the automatic captive-portal popup.
+  return url == "/generate_204" || url == "/gen_204" || url == "/generate204" ||     // Android
+         url == "/hotspot-detect.html" || url == "/hotspotdetect.html" ||            // Apple iOS/macOS
+         url == "/library/test/success.html" || url == "/success.html" ||           // Apple / misc
+         url == "/connecttest.txt" || url == "/ncsi.txt" || url == "/fwlink" ||      // Windows
+         url == "/redirect" || url == "/canonical.html" || url == "/success.txt" ||  // Windows / Firefox
+         url == "/check_network_status.txt" || url == "/mobile/status.php";          // misc Android/other
 }
 
 void SmartHomeShopSetupPortal::send_response_(AsyncWebServerRequest *request, int code, const char *content_type,
