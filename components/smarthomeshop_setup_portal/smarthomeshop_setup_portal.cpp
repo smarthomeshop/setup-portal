@@ -458,7 +458,7 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
   html += R"SHHTML(">)SHHTML";
 
   if (this->support_home_assistant_) {
-    html += R"SHHTML(<div class="checkcard on locked"><i class="tick">✓</i><span><strong>Home Assistant <em>Always on</em></strong><span>Shows up automatically in Home Assistant on your network &mdash; nothing to set up.</span></span></div>)SHHTML";
+    html += R"SHHTML(<div class="checkcard on locked"><i class="tick">✓</i><span><strong>Home Assistant <em>Always on</em></strong><span>Shows up automatically in Home Assistant on your network. No setup needed.</span></span></div>)SHHTML";
   }
   if (this->support_homey_) {
     html += R"SHHTML(<div class="checkcard on locked"><i class="tick">✓</i><span><strong>Homey <em>Always on</em></strong><span>Add it in Homey with the SmartHomeShop app, locally over your network.</span></span></div>)SHHTML";
@@ -528,7 +528,7 @@ void SmartHomeShopSetupPortal::send_saved_page_(AsyncWebServerRequest *request) 
   html += R"SHHTML(</strong></div></div><div class="status"><i class="pulse"></i>Settings saved</div><h1>)SHHTML";
   html += (this->pending_wifi_ ? "Your sensor is connecting." : "You&rsquo;re all set.");
   html += R"SHHTML(</h1><p>)SHHTML";
-  html += (this->pending_wifi_ ? "We&rsquo;ve got your Wi-Fi details. The sensor is testing the connection now and only keeps them once it works &mdash; your phone may drop the fallback network." : "Your settings are saved on the device. You can close this window or head back to setup.");
+  html += (this->pending_wifi_ ? "We&rsquo;ve got your Wi-Fi details. The sensor is testing the connection now and only keeps them once it works. Your phone may drop the fallback network." : "Your settings are saved on the device. You can close this window or head back to setup.");
   html += R"SHHTML(</p><div class="summary"><div><strong>Firmware</strong><span>)SHHTML";
   html += html_escape_(this->firmware_option());
   html += R"SHHTML(</span></div><div><strong>SmartHomeShop App</strong><span>)SHHTML";
@@ -549,7 +549,7 @@ void SmartHomeShopSetupPortal::send_saved_page_(AsyncWebServerRequest *request) 
   if (cloud_on) {
     html += R"SHHTML(<p>Cloud is on. In a moment we&rsquo;ll take you to the SmartHomeShop App to create an account or link this sensor.</p><div class="actions"><a class="btn block" href="https://app.smarthomeshop.io/start">Open the SmartHomeShop App</a></div><p class="micro">Prefer to stay local? <a href="https://docs.smarthomeshop.io" target="_blank" rel="noreferrer">Read the documentation</a>.</p>)SHHTML";
   } else {
-    html += R"SHHTML(<div class="ha-block"><strong>Add it to Home Assistant</strong><ol><li>Open Home Assistant on your phone or computer.</li><li>Go to <b>Settings &rarr; Devices &amp; services</b>.</li><li>Your sensor appears there automatically as a discovered <b>ESPHome</b> device &mdash; click <b>Configure</b> to add it.</li></ol><div class="ipbox)SHHTML";
+    html += R"SHHTML(<div class="ha-block"><strong>Add it to Home Assistant</strong><ol><li>Open Home Assistant on your phone or computer.</li><li>Go to <b>Settings &rarr; Devices &amp; services</b>.</li><li>Your sensor appears there automatically as a discovered <b>ESPHome</b> device. Click <b>Configure</b> to add it.</li></ol><div class="ipbox)SHHTML";
     html += (local_ip.empty() ? " waiting" : "");
     html += R"SHHTML(" id="ipbox"><span><small>Local IP address</small><b id="dev_ip">)SHHTML";
     html += (local_ip.empty() ? std::string("Finding IP address&hellip;") : html_escape_(local_ip));
