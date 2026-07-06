@@ -454,7 +454,7 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
   html += html_escape_(selected_firmware);
   html += R"SHHTML("><div class="firmware-summary"><strong>Selected firmware</strong><span id="firmware_summary">)SHHTML";
   html += html_escape_(selected_firmware);
-  html += R"SHHTML(</span><span>This is the variant we&rsquo;ll use as the firmware update (OTA) source.</span></div></section><section class="panel"><div class="section-title"><h2>Integrations</h2><p>Home Assistant and Homey work out of the box. Turn the SmartHomeShop App and MQTT on or off.</p></div><div class="integrations )SHHTML";
+  html += R"SHHTML(</span><span>This is the variant we&rsquo;ll use as the firmware update (OTA) source.</span></div></section><section class="panel"><div class="section-title"><h2>Integrations</h2><p>Home Assistant and Homey work out of the box. Turn SmartHomeShop Cloud and MQTT on or off.</p></div><div class="integrations )SHHTML";
   html += (visible_integrations <= 1 ? "one" : (visible_integrations == 3 ? "" : "two"));
   html += R"SHHTML(">)SHHTML";
 
@@ -476,7 +476,7 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
     html += (this->settings_.cloud_enabled != 0 ? "on" : "");
     html += R"SHHTML("><input type="checkbox" name="cloud_enabled" id="cloud_enabled")SHHTML";
     html += this->render_checked_(this->settings_.cloud_enabled != 0);
-    html += R"SHHTML(><i class="tick">✓</i><span><strong>SmartHomeShop App</strong><span>Connect to the SmartHomeShop cloud for the app and access from anywhere.</span></span></label>)SHHTML";
+    html += R"SHHTML(><i class="tick">✓</i><span><strong>SmartHomeShop Cloud</strong><span>Manage this sensor at app.smarthomeshop.io from your browser.</span></span></label>)SHHTML";
   }
   html += R"SHHTML(</div>)SHHTML";
 
@@ -536,7 +536,7 @@ void SmartHomeShopSetupPortal::send_saved_page_(AsyncWebServerRequest *request) 
   html += (this->pending_wifi_ ? "We&rsquo;ve got your Wi-Fi details. The sensor is testing the connection now and only keeps them once it works. Your phone may drop the fallback network." : "Your settings are saved on the device. You can close this window or head back to setup.");
   html += R"SHHTML(</p><div class="summary"><div><strong>Firmware</strong><span>)SHHTML";
   html += html_escape_(this->firmware_option());
-  html += R"SHHTML(</span></div><div><strong>SmartHomeShop App</strong><span>)SHHTML";
+  html += R"SHHTML(</span></div><div><strong>SmartHomeShop Cloud</strong><span>)SHHTML";
   html += (cloud_on ? "on" : "off");
   if (this->support_home_assistant_) {
     html += R"SHHTML(</span></div><div><strong>Home Assistant</strong><span>)SHHTML";
@@ -552,7 +552,7 @@ void SmartHomeShopSetupPortal::send_saved_page_(AsyncWebServerRequest *request) 
   }
   html += R"SHHTML(</span></div></div>)SHHTML";
   if (cloud_on) {
-    html += R"SHHTML(<div class="ha-block"><strong>Finish in the SmartHomeShop app</strong><ol><li>Close this window (tap the cross at the top).</li><li>Make sure your phone is back on the internet: your home Wi-Fi or mobile data.</li><li>Open the <b>SmartHomeShop</b> app to create an account and link this sensor.</li></ol></div><p class="micro">This setup window has no internet, so the app can only open once you are back online. Prefer to stay local? <a href="https://docs.smarthomeshop.io" target="_blank" rel="noreferrer">Read the documentation</a>.</p>)SHHTML";
+    html += R"SHHTML(<div class="ha-block"><strong>Finish setup in your browser</strong><ol><li>Close this window (tap the cross at the top).</li><li>Reconnect your phone or computer to the same Wi-Fi network the sensor just joined.</li><li>Go to <b>app.smarthomeshop.io/start</b> in your browser to create an account and link this sensor.</li></ol></div><p class="micro">This setup window has no internet, so open the link once you are back on your normal network. Prefer to stay local? <a href="https://docs.smarthomeshop.io" target="_blank" rel="noreferrer">Read the documentation</a>.</p>)SHHTML";
   } else {
     html += R"SHHTML(<div class="ha-block"><strong>Add it to Home Assistant</strong><ol><li>Open Home Assistant on your phone or computer.</li><li>Go to <b>Settings &rarr; Devices &amp; services</b>.</li><li>Your sensor appears there automatically as a discovered <b>ESPHome</b> device. Click <b>Configure</b> to add it.</li></ol><div class="ipbox)SHHTML";
     html += (local_ip.empty() ? " waiting" : "");
