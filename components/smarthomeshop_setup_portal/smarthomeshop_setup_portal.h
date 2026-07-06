@@ -87,7 +87,7 @@ class SmartHomeShopSetupPortal : public Component, public AsyncWebHandler {
   void send_page_(AsyncWebServerRequest *request, const std::string &notice = "");
   void send_saved_page_(AsyncWebServerRequest *request);
   void send_status_(AsyncWebServerRequest *request);
-  void save_from_request_(AsyncWebServerRequest *request);
+  bool save_from_request_(AsyncWebServerRequest *request);
   void send_response_(AsyncWebServerRequest *request, int code, const char *content_type, const std::string &content) const;
   void redirect_(AsyncWebServerRequest *request, const std::string &location) const;
 
