@@ -1,8 +1,24 @@
-# Applies the setup portal firmware choice to the product firmware_selector.
-# Internal use; requires firmware_selector and sync_selected_firmware_source
-# in the product firmware.
+# Applies the setup portal firmware choice to the product firmware_selector,
+# and (once Wi-Fi is up) switches the device to the selected firmware variant
+# over OTA. Internal use; requires firmware_selector, firmware_update and
+# sync_selected_firmware_source in the product firmware, and a default_network
+# substitution that names the flashed variant.
+
+script:
+  # Install the selected firmware variant over OTA. force: true is required
+  # because local and cloud builds can share the same version number, so a
+  # plain update check reports "up to date" and would not switch.
+  - id: setup_portal_install_firmware
+    then:
+      - logger.log: "Setup portal: switching to selected firmware variant over OTA"
+      - update.check: firmware_update
+      - delay: 12s
+      - update.perform:
+          id: firmware_update
+          force_update: true
 
 interval:
+  # 1) Apply the portal's firmware choice to the selector (dirty-flag driven).
   - interval: 2s
     then:
       - lambda: |-
@@ -24,3 +40,22 @@ interval:
           }
 
           id(setup_portal).mark_firmware_option_applied();
+
+  # 2) Once connected, if the selected variant differs from the flashed one
+  #    (e.g. user enabled cloud on a local build), install it over OTA once.
+  - interval: 5s
+    then:
+      - lambda: |-
+          static bool started = false;
+          if (started)
+            return;
+          if (wifi::global_wifi_component == nullptr || !wifi::global_wifi_component->is_connected())
+            return;
+          const std::string running = "${default_network}";
+          const std::string selected = id(firmware_selector).current_option();
+          if (running.empty() || selected.empty() || selected == running)
+            return;
+          ESP_LOGI("setup_portal", "Selected firmware '%s' differs from running '%s'; installing over OTA",
+                   selected.c_str(), running.c_str());
+          started = true;
+          id(setup_portal_install_firmware).execute();
