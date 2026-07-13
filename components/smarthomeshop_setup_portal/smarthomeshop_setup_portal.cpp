@@ -209,7 +209,7 @@ void SmartHomeShopSetupPortal::apply_defaults_() {
   this->settings_.mqtt_enabled = this->default_mqtt_enabled_ ? 1 : 0;
   this->settings_.firmware_dirty = 0;
   this->copy_to_(this->settings_.mqtt_port, sizeof(this->settings_.mqtt_port), "1883");
-  this->copy_to_(this->settings_.mqtt_topic, sizeof(this->settings_.mqtt_topic), "smarthomeshop/ultimatesensor");
+  this->copy_to_(this->settings_.mqtt_topic, sizeof(this->settings_.mqtt_topic), "smarthomeshop/" + App.get_name());
   const std::string firmware_option =
       !this->default_firmware_option_.empty() ? this->default_firmware_option_ : this->product_variant_;
   this->copy_to_(this->settings_.firmware_option, sizeof(this->settings_.firmware_option), firmware_option);
@@ -422,7 +422,7 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
   html += BRAND_MARK_SVG;
   html += R"SHHTML(</div><div><div class="eyebrow">Device setup</div><strong>)SHHTML";
   html += html_escape_(this->product_name_);
-  html += R"SHHTML(</strong></div></div><h1>Let&rsquo;s get your sensor online.</h1><p>Connect it to your network, pick how it links up, and choose your integrations. We&rsquo;ll match the right firmware for you.</p><div class="topline"><span class="chip dark"><i class="dot )SHHTML";
+  html += R"SHHTML(</strong></div></div><h1>Let&rsquo;s get your device online.</h1><p>Connect it to your network, pick how it links up, and choose your integrations. We&rsquo;ll match the right firmware for you.</p><div class="topline"><span class="chip dark"><i class="dot )SHHTML";
   html += (connected ? "online" : "");
   html += R"SHHTML("></i>)SHHTML";
   html += html_escape_(this->status_text_());
@@ -445,9 +445,9 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
     html += (!selected_ethernet ? " checked" : "");
     html += R"SHHTML(><strong>Wi-Fi</strong><span>Connect over your wireless network for Wi-Fi, Home Assistant and cloud.</span></label><label class="choice-card"><input type="radio" name="connection_mode" value="ethernet")SHHTML";
     html += (selected_ethernet ? " checked" : "");
-    html += R"SHHTML(><strong>Ethernet</strong><span>For V2 hardware with a W5500 chip. We&rsquo;ll prepare the matching Ethernet firmware.</span></label></div>)SHHTML";
+    html += R"SHHTML(><strong>Ethernet</strong><span>For devices with a wired network port. We&rsquo;ll prepare the matching Ethernet firmware.</span></label></div>)SHHTML";
   } else {
-    html += R"SHHTML(<div class="choice-grid"><div class="choice-card active"><strong>Wi-Fi only</strong><span>This V1 device connects over Wi-Fi. Ethernet arrives with V2 hardware.</span></div></div><input type="hidden" name="connection_mode" value="wifi">)SHHTML";
+    html += R"SHHTML(<div class="choice-grid"><div class="choice-card active"><strong>Wi-Fi only</strong><span>This device connects over your Wi-Fi network.</span></div></div><input type="hidden" name="connection_mode" value="wifi">)SHHTML";
   }
 
   html += R"SHHTML(<input type="hidden" id="firmware_option" name="firmware_option" value=")SHHTML";
@@ -469,14 +469,14 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
     html += (this->settings_.mqtt_enabled != 0 ? "on" : "");
     html += R"SHHTML(" id="mqtt_card"><input type="checkbox" name="mqtt_enabled" id="mqtt_enabled")SHHTML";
     html += this->render_checked_(this->settings_.mqtt_enabled != 0);
-    html += R"SHHTML(><i class="tick">✓</i><span><strong>MQTT</strong><span>Send live sensor readings to your own MQTT broker.</span></span></label>)SHHTML";
+    html += R"SHHTML(><i class="tick">✓</i><span><strong>MQTT</strong><span>Send live readings to your own MQTT broker.</span></span></label>)SHHTML";
   }
   if (this->support_cloud_) {
     html += R"SHHTML(<label class="checkcard )SHHTML";
     html += (this->settings_.cloud_enabled != 0 ? "on" : "");
     html += R"SHHTML("><input type="checkbox" name="cloud_enabled" id="cloud_enabled")SHHTML";
     html += this->render_checked_(this->settings_.cloud_enabled != 0);
-    html += R"SHHTML(><i class="tick">✓</i><span><strong>SmartHomeShop Cloud</strong><span>Manage this sensor at app.smarthomeshop.io from your browser.</span></span></label>)SHHTML";
+    html += R"SHHTML(><i class="tick">✓</i><span><strong>SmartHomeShop Cloud</strong><span>Manage this device at app.smarthomeshop.io from your browser.</span></span></label>)SHHTML";
   }
   html += R"SHHTML(</div>)SHHTML";
 
@@ -489,7 +489,7 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
     html += html_escape_(this->settings_.mqtt_topic) + R"SHHTML("></div></div></div>)SHHTML";
   }
 
-  html += R"SHHTML(<div class="actions"><button class="btn block" type="submit">Save and connect</button></div></form><p class="micro">Once you save, the sensor connects straight away. It&rsquo;s normal for the fallback Wi-Fi network to disappear. <a href="https://docs.smarthomeshop.io" target="_blank" rel="noreferrer">Open documentation</a></p></section></main><script>
+  html += R"SHHTML(<div class="actions"><button class="btn block" type="submit">Save and connect</button></div></form><p class="micro">Once you save, the device connects straight away. It&rsquo;s normal for the fallback Wi-Fi network to disappear. <a href="https://docs.smarthomeshop.io" target="_blank" rel="noreferrer">Open documentation</a></p></section></main><script>
 var firmwareOptions=)SHHTML";
   html += firmware_options_json;
   html += R"SHHTML(;
@@ -531,9 +531,9 @@ void SmartHomeShopSetupPortal::send_saved_page_(AsyncWebServerRequest *request) 
   html += R"SHHTML(</div><div><div class="eyebrow">Device setup</div><strong>)SHHTML";
   html += html_escape_(this->product_name_);
   html += R"SHHTML(</strong></div></div><div class="status"><i class="pulse"></i>Settings saved</div><h1>)SHHTML";
-  html += (this->pending_wifi_ ? "Your sensor is connecting." : "You&rsquo;re all set.");
+  html += (this->pending_wifi_ ? "Your device is connecting." : "You&rsquo;re all set.");
   html += R"SHHTML(</h1><p>)SHHTML";
-  html += (this->pending_wifi_ ? "We&rsquo;ve got your Wi-Fi details. The sensor is testing the connection now and only keeps them once it works. Your phone may drop the fallback network." : "Your settings are saved on the device. You can close this window or head back to setup.");
+  html += (this->pending_wifi_ ? "We&rsquo;ve got your Wi-Fi details. The device is testing the connection now and only keeps them once it works. Your phone may drop the fallback network." : "Your settings are saved on the device. You can close this window or head back to setup.");
   html += R"SHHTML(</p><div class="summary"><div><strong>Firmware</strong><span>)SHHTML";
   html += html_escape_(this->firmware_option());
   html += R"SHHTML(</span></div><div><strong>SmartHomeShop Cloud</strong><span>)SHHTML";
@@ -552,9 +552,9 @@ void SmartHomeShopSetupPortal::send_saved_page_(AsyncWebServerRequest *request) 
   }
   html += R"SHHTML(</span></div></div>)SHHTML";
   if (cloud_on) {
-    html += R"SHHTML(<div class="ha-block"><strong>Finish setup in your browser</strong><ol><li>Close this window (tap the cross at the top).</li><li>Reconnect your phone or computer to the same Wi-Fi network the sensor just joined.</li><li>Go to <b>app.smarthomeshop.io/start</b> in your browser to create an account and link this sensor.</li></ol></div><p class="micro">This setup window has no internet, so open the link once you are back on your normal network. Prefer to stay local? <a href="https://docs.smarthomeshop.io" target="_blank" rel="noreferrer">Read the documentation</a>.</p>)SHHTML";
+    html += R"SHHTML(<div class="ha-block"><strong>Finish setup in your browser</strong><ol><li>Close this window (tap the cross at the top).</li><li>Reconnect your phone or computer to the same Wi-Fi network the device just joined.</li><li>Go to <b>app.smarthomeshop.io/start</b> in your browser to create an account and link this device.</li></ol></div><p class="micro">This setup window has no internet, so open the link once you are back on your normal network. Prefer to stay local? <a href="https://docs.smarthomeshop.io" target="_blank" rel="noreferrer">Read the documentation</a>.</p>)SHHTML";
   } else {
-    html += R"SHHTML(<div class="ha-block"><strong>Add it to Home Assistant</strong><ol><li>Open Home Assistant on your phone or computer.</li><li>Go to <b>Settings &rarr; Devices &amp; services</b>.</li><li>Your sensor appears there automatically as a discovered <b>ESPHome</b> device. Click <b>Configure</b> to add it.</li></ol><div class="ipbox)SHHTML";
+    html += R"SHHTML(<div class="ha-block"><strong>Add it to Home Assistant</strong><ol><li>Open Home Assistant on your phone or computer.</li><li>Go to <b>Settings &rarr; Devices &amp; services</b>.</li><li>Your device appears there automatically as a discovered <b>ESPHome</b> device. Click <b>Configure</b> to add it.</li></ol><div class="ipbox)SHHTML";
     html += (local_ip.empty() ? " waiting" : "");
     html += R"SHHTML(" id="ipbox"><span><small>Local IP address</small><b id="dev_ip">)SHHTML";
     html += (local_ip.empty() ? std::string("Finding IP address&hellip;") : html_escape_(local_ip));
