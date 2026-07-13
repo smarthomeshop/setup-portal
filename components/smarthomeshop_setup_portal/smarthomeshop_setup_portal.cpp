@@ -422,7 +422,7 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
   html += BRAND_MARK_SVG;
   html += R"SHHTML(</div><div><div class="eyebrow">Device setup</div><strong>)SHHTML";
   html += html_escape_(this->product_name_);
-  html += R"SHHTML(</strong></div></div><h1>Let&rsquo;s get your device online.</h1><p>Connect it to your network, pick how it links up, and choose your integrations. We&rsquo;ll match the right firmware for you.</p><div class="topline"><span class="chip dark"><i class="dot )SHHTML";
+  html += R"SHHTML(</strong></div></div><h1>Let&rsquo;s connect your device</h1><p>Connect it to your network, pick how it links up, and choose your integrations. We&rsquo;ll match the right firmware for you.</p><div class="topline"><span class="chip dark"><i class="dot )SHHTML";
   html += (connected ? "online" : "");
   html += R"SHHTML("></i>)SHHTML";
   html += html_escape_(this->status_text_());
@@ -443,11 +443,11 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
   if (this->support_ethernet_) {
     html += R"SHHTML(<div class="choice-grid" id="connection_choices"><label class="choice-card"><input type="radio" name="connection_mode" value="wifi")SHHTML";
     html += (!selected_ethernet ? " checked" : "");
-    html += R"SHHTML(><strong>Wi-Fi</strong><span>Connect over your wireless network for Wi-Fi, Home Assistant and cloud.</span></label><label class="choice-card"><input type="radio" name="connection_mode" value="ethernet")SHHTML";
+    html += R"SHHTML(><strong>Wi-Fi</strong></label><label class="choice-card"><input type="radio" name="connection_mode" value="ethernet")SHHTML";
     html += (selected_ethernet ? " checked" : "");
-    html += R"SHHTML(><strong>Ethernet</strong><span>For devices with a wired network port. We&rsquo;ll prepare the matching Ethernet firmware.</span></label></div>)SHHTML";
+    html += R"SHHTML(><strong>Ethernet</strong></label></div>)SHHTML";
   } else {
-    html += R"SHHTML(<div class="choice-grid"><div class="choice-card active"><strong>Wi-Fi only</strong><span>This device connects over your Wi-Fi network.</span></div></div><input type="hidden" name="connection_mode" value="wifi">)SHHTML";
+    html += R"SHHTML(<div class="choice-grid"><div class="choice-card active"><strong>Wi-Fi only</strong></div></div><input type="hidden" name="connection_mode" value="wifi">)SHHTML";
   }
 
   html += R"SHHTML(<input type="hidden" id="firmware_option" name="firmware_option" value=")SHHTML";
