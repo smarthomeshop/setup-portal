@@ -445,7 +445,7 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
     html += (!selected_ethernet ? " checked" : "");
     html += R"SHHTML(><strong>Wi-Fi</strong></label><label class="choice-card"><input type="radio" name="connection_mode" value="ethernet")SHHTML";
     html += (selected_ethernet ? " checked" : "");
-    html += R"SHHTML(><strong>Ethernet</strong></label></div><div class="hint eth-hint" id="eth_hint">Still connect Wi-Fi below: the device uses Wi-Fi once to install the Ethernet firmware. After that, plug in the network cable.</div>)SHHTML";
+    html += R"SHHTML(><strong>Ethernet</strong></label></div><div class="hint eth-hint" id="eth_hint">Still connect Wi-Fi below: the device uses Wi-Fi once to install the Ethernet firmware. After that, plug in the network cable.<br>No Wi-Fi available, or prefer not to use it? Flash the Ethernet firmware over USB-C at <b>smarthomeshop.io/firmware</b>.</div>)SHHTML";
   } else {
     html += R"SHHTML(<div class="choice-grid"><div class="choice-card active"><strong>Wi-Fi only</strong></div></div><input type="hidden" name="connection_mode" value="wifi">)SHHTML";
   }
