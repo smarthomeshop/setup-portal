@@ -445,7 +445,7 @@ void SmartHomeShopSetupPortal::send_page_(AsyncWebServerRequest *request, const 
     html += (!selected_ethernet ? " checked" : "");
     html += R"SHHTML(><strong>Wi-Fi</strong></label><label class="choice-card"><input type="radio" name="connection_mode" value="ethernet")SHHTML";
     html += (selected_ethernet ? " checked" : "");
-    html += R"SHHTML(><strong>Ethernet</strong></label></div><div class="hint eth-hint" id="eth_hint">Still connect Wi-Fi below: the device uses Wi-Fi once to install the Ethernet firmware. After that, plug in the network cable.<br>No Wi-Fi available, or prefer not to use it? Flash the Ethernet firmware over USB-C at <b>smarthomeshop.io/firmware</b>.</div>)SHHTML";
+    html += R"SHHTML(><strong>Ethernet</strong></label></div><div class="hint eth-hint" id="eth_hint">Still connect Wi-Fi below: the device uses Wi-Fi once to install the Ethernet firmware in the background. Allow at least 2 minutes; once it finishes, the Ethernet port works and you plug in the network cable.<br>No Wi-Fi available, or prefer not to use it? Flash the Ethernet firmware over USB-C at <b>smarthomeshop.io/firmware</b>.</div>)SHHTML";
   } else {
     html += R"SHHTML(<div class="choice-grid"><div class="choice-card active"><strong>Wi-Fi only</strong></div></div><input type="hidden" name="connection_mode" value="wifi">)SHHTML";
   }
@@ -551,6 +551,10 @@ void SmartHomeShopSetupPortal::send_saved_page_(AsyncWebServerRequest *request) 
     html += (this->mqtt_enabled() ? "on" : "off");
   }
   html += R"SHHTML(</span></div></div>)SHHTML";
+  const std::string saved_firmware = this->firmware_option();
+  if (this->support_ethernet_ && saved_firmware.find("Ethernet") != std::string::npos) {
+    html += R"SHHTML(<div class="ha-block"><strong>Ethernet firmware is installing</strong><ol><li>Keep the device powered. The Ethernet firmware installs in the background; allow at least 2 minutes.</li><li>The device restarts on its own when the installation is done.</li><li>Plug in the network cable. The Ethernet port works from then on.</li></ol></div>)SHHTML";
+  }
   if (cloud_on) {
     html += R"SHHTML(<div class="ha-block"><strong>Finish setup in your browser</strong><ol><li>Close this window (tap the cross at the top).</li><li>Reconnect your phone or computer to the same Wi-Fi network the device just joined.</li><li>Go to <b>app.smarthomeshop.io/start</b> in your browser to create an account and link this device.</li></ol></div><p class="micro">This setup window has no internet, so open the link once you are back on your normal network. Prefer to stay local? <a href="https://docs.smarthomeshop.io" target="_blank" rel="noreferrer">Read the documentation</a>.</p>)SHHTML";
   } else {
