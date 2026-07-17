@@ -282,7 +282,9 @@ std::string SmartHomeShopSetupPortal::local_ip_() const {
   if (wifi::global_wifi_component == nullptr || !wifi::global_wifi_component->is_connected())
     return {};
   for (const auto &ip : wifi::global_wifi_component->get_ip_addresses()) {
-    std::string value = ip.str();
+    char buf[network::IP_ADDRESS_BUFFER_SIZE];
+    ip.str_to(buf);
+    std::string value(buf);
     if (value.empty() || value == "0.0.0.0" || value.find(':') != std::string::npos)
       continue;
     return value;
