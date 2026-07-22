@@ -9,10 +9,6 @@
 #include <cstring>
 #include <set>
 
-#ifdef ESP_PLATFORM
-#include <esp_wifi.h>
-#endif
-
 namespace esphome {
 namespace smarthomeshop_setup_portal {
 
@@ -32,10 +28,6 @@ void SmartHomeShopSetupPortal::setup() {
   this->apply_defaults_();
   this->load_settings_();
 
-  if (wifi::global_wifi_component != nullptr) {
-    wifi::global_wifi_component->set_keep_scan_results(true);
-  }
-
   if (web_server_base::global_web_server_base == nullptr) {
     ESP_LOGW(TAG, "web_server_base is not available; setup portal disabled");
     return;
@@ -49,30 +41,18 @@ void SmartHomeShopSetupPortal::loop() {
   if (wifi::global_wifi_component == nullptr)
     return;
 
+  // We never trigger a Wi-Fi scan ourselves. On single-radio chips (ESP32-C6) a
+  // scan briefly leaves the SoftAP channel and disconnects whoever is using the
+  // captive portal. ESPHome's own wifi/captive_portal already runs exactly one
+  // scan when the fallback AP comes up and keeps the full results available
+  // (needs_full_scan_results_() is true while the portal is active), so the
+  // network list is populated for us. Adding our own periodic scan only fought
+  // that logic and kicked users off, so this loop just drives the apply flow.
   const uint32_t now = millis();
   if (this->pending_wifi_ && !this->wifi_apply_active_)
     this->begin_wifi_apply();
   if (this->wifi_apply_active_)
     this->process_wifi_apply_(now);
-
-  // Refresh the portal network list, but never scan when doing so would drop
-  // the fallback AP. On single-radio chips (ESP32-C6) a Wi-Fi scan briefly
-  // leaves the SoftAP channel, which disconnects the client using the captive
-  // portal. Skip the scan when:
-  //  - a connection attempt is in progress (scanning fights the STA connect),
-  //  - the device already has stored Wi-Fi (Improv/dashboard provisioning): the
-  //    Wi-Fi component connects on its own and our scan is only interference,
-  //  - a client is connected to the fallback AP: never kick the user off.
-  const bool connecting = this->pending_wifi_ || this->wifi_apply_active_ || this->wifi_provisioning_started_;
-  if (connecting || wifi::global_wifi_component->has_sta() || this->ap_has_clients_())
-    return;
-
-  if (this->portal_should_handle_root_() &&
-      (this->last_scan_request_ms_ == 0 || now - this->last_scan_request_ms_ > SCAN_REFRESH_MS)) {
-    this->last_scan_request_ms_ = now == 0 ? 1 : now;
-    wifi::global_wifi_component->set_keep_scan_results(true);
-    wifi::global_wifi_component->start_scanning();
-  }
 }
 
 void SmartHomeShopSetupPortal::dump_config() {
@@ -156,7 +136,6 @@ void SmartHomeShopSetupPortal::begin_wifi_apply() {
   // and the STA never came up.
   wifi->save_wifi_sta(this->pending_wifi_ssid_, this->pending_wifi_password_);
 
-  this->wifi_provisioning_started_ = true;
   this->wifi_apply_active_ = true;
   this->wifi_last_error_ = false;
   this->wifi_apply_started_ms_ = millis() == 0 ? 1 : millis();
@@ -288,15 +267,6 @@ void SmartHomeShopSetupPortal::mark_firmware_option_applied() {
     return;
   this->settings_.firmware_dirty = 0;
   this->save_settings_();
-}
-
-bool SmartHomeShopSetupPortal::ap_has_clients_() const {
-#ifdef ESP_PLATFORM
-  wifi_sta_list_t sta_list{};
-  if (esp_wifi_ap_get_sta_list(&sta_list) == ESP_OK)
-    return sta_list.num > 0;
-#endif
-  return false;
 }
 
 std::string SmartHomeShopSetupPortal::local_ip_() const {

@@ -72,7 +72,6 @@ class SmartHomeShopSetupPortal : public Component, public AsyncWebHandler {
 
   static constexpr uint32_t SETTINGS_MAGIC = 0x53485350;  // SHSP
   static constexpr uint32_t SETTINGS_PREF_KEY = 0x5A47A61D;
-  static constexpr uint32_t SCAN_REFRESH_MS = 15000UL;
   static constexpr uint32_t WIFI_APPLY_TIMEOUT_MS = 45000UL;
 
   void load_settings_();
@@ -97,9 +96,6 @@ class SmartHomeShopSetupPortal : public Component, public AsyncWebHandler {
   std::string render_disabled_(bool value) const;
   std::string status_text_() const;
   std::string local_ip_() const;
-  // True when at least one client is connected to the fallback SoftAP. Used to
-  // avoid Wi-Fi scans that would drop the AP and kick the captive-portal user.
-  bool ap_has_clients_() const;
   std::vector<std::string> firmware_options_() const;
   static std::string html_escape_(const std::string &value);
   static std::string json_escape_(const std::string &value);
@@ -127,11 +123,9 @@ class SmartHomeShopSetupPortal : public Component, public AsyncWebHandler {
 
   bool pending_wifi_{false};
   bool wifi_apply_active_{false};
-  bool wifi_provisioning_started_{false};
   bool wifi_last_error_{false};
   bool previous_sta_valid_{false};
   uint32_t wifi_apply_started_ms_{0};
-  uint32_t last_scan_request_ms_{0};
   wifi::WiFiAP previous_sta_{};
   std::string pending_wifi_ssid_{};
   std::string pending_wifi_password_{};
