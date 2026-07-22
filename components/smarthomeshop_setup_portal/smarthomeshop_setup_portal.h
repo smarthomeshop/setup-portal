@@ -97,6 +97,9 @@ class SmartHomeShopSetupPortal : public Component, public AsyncWebHandler {
   std::string render_disabled_(bool value) const;
   std::string status_text_() const;
   std::string local_ip_() const;
+  // True when at least one client is connected to the fallback SoftAP. Used to
+  // avoid Wi-Fi scans that would drop the AP and kick the captive-portal user.
+  bool ap_has_clients_() const;
   std::vector<std::string> firmware_options_() const;
   static std::string html_escape_(const std::string &value);
   static std::string json_escape_(const std::string &value);

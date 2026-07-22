@@ -9,6 +9,10 @@
 #include <cstring>
 #include <set>
 
+#ifdef ESP_PLATFORM
+#include <esp_wifi.h>
+#endif
+
 namespace esphome {
 namespace smarthomeshop_setup_portal {
 
@@ -51,11 +55,19 @@ void SmartHomeShopSetupPortal::loop() {
   if (this->wifi_apply_active_)
     this->process_wifi_apply_(now);
 
-  // Only refresh the network list while idle in the portal. Never scan while a
-  // connection attempt is in progress: scanning and connecting share the radio,
-  // so periodic scans repeatedly drop the STA connection and it never comes up.
+  // Refresh the portal network list, but never scan when doing so would drop
+  // the fallback AP. On single-radio chips (ESP32-C6) a Wi-Fi scan briefly
+  // leaves the SoftAP channel, which disconnects the client using the captive
+  // portal. Skip the scan when:
+  //  - a connection attempt is in progress (scanning fights the STA connect),
+  //  - the device already has stored Wi-Fi (Improv/dashboard provisioning): the
+  //    Wi-Fi component connects on its own and our scan is only interference,
+  //  - a client is connected to the fallback AP: never kick the user off.
   const bool connecting = this->pending_wifi_ || this->wifi_apply_active_ || this->wifi_provisioning_started_;
-  if (!connecting && this->portal_should_handle_root_() &&
+  if (connecting || wifi::global_wifi_component->has_sta() || this->ap_has_clients_())
+    return;
+
+  if (this->portal_should_handle_root_() &&
       (this->last_scan_request_ms_ == 0 || now - this->last_scan_request_ms_ > SCAN_REFRESH_MS)) {
     this->last_scan_request_ms_ = now == 0 ? 1 : now;
     wifi::global_wifi_component->set_keep_scan_results(true);
@@ -276,6 +288,15 @@ void SmartHomeShopSetupPortal::mark_firmware_option_applied() {
     return;
   this->settings_.firmware_dirty = 0;
   this->save_settings_();
+}
+
+bool SmartHomeShopSetupPortal::ap_has_clients_() const {
+#ifdef ESP_PLATFORM
+  wifi_sta_list_t sta_list{};
+  if (esp_wifi_ap_get_sta_list(&sta_list) == ESP_OK)
+    return sta_list.num > 0;
+#endif
+  return false;
 }
 
 std::string SmartHomeShopSetupPortal::local_ip_() const {
